@@ -1,5 +1,5 @@
-from app import App
+from application import Game
 
 if __name__ == "__main__":
-  game = App()
+  game = Game()
   game.run()
