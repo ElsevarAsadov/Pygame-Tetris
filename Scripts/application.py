@@ -26,10 +26,9 @@ class Game:
       self.clock.tick(FPS)
   
   def handle_events(self):
-    #key map
-    keys = pg.key.get_pressed()
     #user events flags
     self.anim_trigger = False
+    self.fast_anim_trigger = False
     #game window events
     for e in pg.event.get():
       
@@ -37,11 +36,8 @@ class Game:
         pg.quit()
         exit(0)
         
-      if e.type == self.animation_event:
-        self.anim_trigger = True
-        #game object events
-        self.tetris.handle_user_controls(keys)
-  
+      self.tetris.controls(e)
+        
   def update(self):
     self.tetris.update()
   
@@ -51,3 +47,5 @@ class Game:
   def set_timer(self):
     self.animation_event = pg.USEREVENT + 0
     pg.time.set_timer(self.animation_event, ANIM_TIME_INTERVAL)
+    self.fast_movement_event = pg.USEREVENT + 1
+    pg.time.set_timer(self.fast_movement_event, FAST_ANIM_INTERVAL)
