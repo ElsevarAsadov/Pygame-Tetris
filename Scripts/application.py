@@ -1,6 +1,8 @@
 from settings import *
 from tetris import Tetris
 from objects import Tetromino
+import os
+import pathlib
 
 class Game:
   def __init__(self):
@@ -11,6 +13,7 @@ class Game:
     self.game_srf = pg.Surface(GAME_FIELD_SIZE)
     self.clock = pg.time.Clock()
     
+    self.images = self.load_images()
     self.set_timer()
     
     #game objects
@@ -49,3 +52,14 @@ class Game:
     pg.time.set_timer(self.animation_event, ANIM_TIME_INTERVAL)
     self.fast_movement_event = pg.USEREVENT + 1
     pg.time.set_timer(self.fast_movement_event, FAST_ANIM_INTERVAL)
+  
+  def load_images(self):
+    
+    images = pathlib.Path("Assets").rglob(r"[0-5].png")
+    
+    images = [pg.image.load(image).convert_alpha() for image in images]
+    
+    images = [pg.transform.scale(image, (TILE_SIZE, TILE_SIZE)) for image in images]
+    
+    return images
+  

@@ -3,15 +3,16 @@ from random import choice
 
 
 class Block(pg.sprite.Sprite):
-    def __init__(self, tetromino, pos):
+    def __init__(self, tetromino, pos, img):
         offset_x = INITIAL_TETROMINO_OFFSET_X
         offset_y = INITIAL_TETROMINO_OFFSET_Y
         self.tetromino = tetromino
         super().__init__(self.tetromino.tetris.sprite_g)
 
         self.pos = vec(pos) + vec(offset_x, offset_y)
-        self.image = pg.Surface((TILE_SIZE, TILE_SIZE))
-        self.image.fill("orange")
+        self.next_pos = vec(pos)
+        
+        self.image = img.convert_alpha()
         self.rect = self.image.get_rect()
         
     
@@ -22,7 +23,10 @@ class Block(pg.sprite.Sprite):
     
     
     def update(self):
-        self.rect.topleft = self.pos * TILE_SIZE
+        if self.tetromino.current:
+            self.rect.topleft = self.pos * TILE_SIZE
+        else:
+            self.rect.topleft = self.next_pos * 20 + (300, 200)
 
     def is_collide(self, pos):
         fx = GAME_AREA_TILE_X
@@ -34,10 +38,17 @@ class Block(pg.sprite.Sprite):
         return True
 
 class Tetromino:
-    def __init__(self, tetris):
+    def __init__(self, tetris, current=True):
+        self.current = current
         self.tetris = tetris
         self.shape = choice([*TETROMINO_SHAPES.keys()])
-        self.blocks = [Block(self, pos)
+        
+        img = choice(self.tetris.app.images)
+        
+        if not self.current:
+            img = pg.transform.scale(img, (20,20))
+            
+        self.blocks = [Block(self, pos, img)
                        for pos in TETROMINO_SHAPES[self.shape]]
         
         self.landing = False

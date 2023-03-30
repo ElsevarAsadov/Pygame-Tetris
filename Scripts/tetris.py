@@ -12,7 +12,7 @@ class Tetris:
 
         # game objects
         self.tetromino = Tetromino(self)
-        self.next_tetromino = Tetromino(self)
+        self.next_tetromino = Tetromino(self, current=False)
 
         # game map grid:
         self.field_array = self.get_field()
@@ -23,12 +23,12 @@ class Tetris:
             self.check_tetromino_landing()
             self.check_full_lines()
         self.sprite_g.update()
-
+        
     def draw(self):
         self.show_background()
+        self.show_game_area()
         self.draw_grid()
         self.sprite_g.draw(self.app.game_srf)
-        self.show_game_area()
 
     def show_background(self):
         bg_path = os.path.join("Assets", "background.jpg")
@@ -47,11 +47,16 @@ class Tetris:
             self.field_array[y][x] = block
 
     def show_game_area(self):
+        
+        area_path = os.path.join("Assets", "gamearea.jpg")
+        area_img = pg.image.load(area_path).convert_alpha()
+        
         x = GAME_AREA_OFFSET_X
         y = GAME_AREA_OFFSET_Y
         self.app.screen.blit(self.app.game_srf, (x, y))
-        self.app.game_srf.fill("green")
-        self.app.game_srf.set_colorkey("green")
+        self.app.game_srf.blit(area_img, (0,0))
+        #self.app.game_srf.fill("green")
+        #self.app.game_srf.set_colorkey("green")
 
     def draw_grid(self):
         x = GAME_FIELD_X
@@ -64,6 +69,11 @@ class Tetris:
                 pg.draw.rect(self.app.game_srf, color, (i * TILE_SIZE,
                              j * TILE_SIZE, TILE_SIZE, TILE_SIZE), 1)
 
+    # def show_next_tetromino(self):
+    #     blocks = self.next_tetromino.blocks
+    #     for block in blocks:
+    #         self.app.screen.blit(block, "")
+    
     def check_tetromino_landing(self):
         if self.tetromino.landing:
             if self.is_game_over():
@@ -72,7 +82,8 @@ class Tetris:
             else:
                 self.put_tetromino_blocks_in_array()
                 self.tetromino = self.next_tetromino
-                self.next_tetromino = Tetromino(self)
+                self.tetromino.current = True
+                self.next_tetromino = Tetromino(self, current=False)
 
     def check_full_lines(self):
         fx = GAME_AREA_TILE_X
