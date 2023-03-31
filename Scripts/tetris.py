@@ -23,12 +23,33 @@ class Tetris:
             self.check_tetromino_landing()
             self.check_full_lines()
         self.sprite_g.update()
-        
+
     def draw(self):
         self.show_background()
+        self.draw_next()
         self.show_game_area()
         self.draw_grid()
         self.sprite_g.draw(self.app.game_srf)
+
+    def draw_next(self):
+        blocks = self.next_tetromino.blocks
+        
+        surf = pg.Surface((100, 100))
+        surf_rect = surf.get_rect(center=NEXT_TETROMINO_LOCATION)
+        
+        surf.set_colorkey("black")
+        
+        for i in blocks:
+            image = pg.transform.scale(i.image, MINIMIZED_BLOCK_SIZE)
+            
+            rect = image.get_rect()
+            margin = MINIMIZED_BLOCK_SIZE[0]
+            
+            rect.topleft = i.next_pos * margin + vec(50, 50)
+
+            surf.blit(image, rect)
+        
+        self.app.screen.blit(surf, surf_rect)
 
     def show_background(self):
         bg_path = os.path.join("Assets", "background.jpg")
@@ -47,16 +68,14 @@ class Tetris:
             self.field_array[y][x] = block
 
     def show_game_area(self):
-        
+
         area_path = os.path.join("Assets", "gamearea.jpg")
         area_img = pg.image.load(area_path).convert_alpha()
-        
+
         x = GAME_AREA_OFFSET_X
         y = GAME_AREA_OFFSET_Y
         self.app.screen.blit(self.app.game_srf, (x, y))
-        self.app.game_srf.blit(area_img, (0,0))
-        #self.app.game_srf.fill("green")
-        #self.app.game_srf.set_colorkey("green")
+        self.app.game_srf.blit(area_img, (0, 0))
 
     def draw_grid(self):
         x = GAME_FIELD_X
@@ -69,11 +88,6 @@ class Tetris:
                 pg.draw.rect(self.app.game_srf, color, (i * TILE_SIZE,
                              j * TILE_SIZE, TILE_SIZE, TILE_SIZE), 1)
 
-    # def show_next_tetromino(self):
-    #     blocks = self.next_tetromino.blocks
-    #     for block in blocks:
-    #         self.app.screen.blit(block, "")
-    
     def check_tetromino_landing(self):
         if self.tetromino.landing:
             if self.is_game_over():
@@ -100,10 +114,10 @@ class Tetris:
                 row -= 1
             else:
                 for x in range(fx):
-                    #self.field_array[row][x].alive = False
+                    self.field_array[row][x].alive = False
                     self.field_array[row][x] = 0
 
-                #self.full_lines += 1
+                # self.full_lines += 1
 
     def is_game_over(self):
         for block in self.tetromino.blocks:

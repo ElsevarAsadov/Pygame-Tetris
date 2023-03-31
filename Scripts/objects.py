@@ -15,19 +15,27 @@ class Block(pg.sprite.Sprite):
         self.image = img.convert_alpha()
         self.rect = self.image.get_rect()
         
+        self.alive = True
+        
     
     def rotate(self, pivot_pos):
         translated = self.pos - pivot_pos
         rotated = translated.rotate(90)
         return rotated + pivot_pos
     
-    
+
     def update(self):
         if self.tetromino.current:
             self.rect.topleft = self.pos * TILE_SIZE
+            self.image =  self.tetromino.img
         else:
-            self.rect.topleft = self.next_pos * 20 + (300, 200)
-
+            self.rect.topleft = self.next_pos * TILE_SIZE
+            self.image =  self.tetromino.img
+        
+        if not self.alive:
+            self.kill()
+        
+            
     def is_collide(self, pos):
         fx = GAME_AREA_TILE_X
         fy = GAME_AREA_TILE_Y
@@ -43,19 +51,16 @@ class Tetromino:
         self.tetris = tetris
         self.shape = choice([*TETROMINO_SHAPES.keys()])
         
-        img = choice(self.tetris.app.images)
-        
-        if not self.current:
-            img = pg.transform.scale(img, (20,20))
+        self.img = choice(self.tetris.app.images)
+        self.img_minimized = pg.transform.scale(self.img, MINIMIZED_BLOCK_SIZE)
             
-        self.blocks = [Block(self, pos, img)
+        self.blocks = [Block(self, pos, self.img)
                        for pos in TETROMINO_SHAPES[self.shape]]
         
         self.landing = False
 
     def update(self):
         self.move()
-        
         
     def is_collide(self, new_block_positions):
         return any(map(Block.is_collide, self.blocks, new_block_positions))
@@ -67,8 +72,7 @@ class Tetromino:
         if not self.is_collide(new_block_positions):
             for i, block in enumerate(self.blocks):
                 block.pos = new_block_positions[i]
-    
-    
+        
     def move(self, direction="down"):
         # adding new position to the block
         move_direction = MOVEMENT[direction]

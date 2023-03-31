@@ -40,6 +40,10 @@ TETROMINO_SHAPES = {
     'Z': [(0, 0), (1, 0), (0, -1), (-1, -1)]
 }
 
+MINIMIZED_BLOCK_SIZE = (23, 23)
+
+NEXT_TETROMINO_LOCATION = (485, 235)
+
 MOVEMENT = {"left" : vec(-1, 0), "right" : vec(1, 0), "down" : (0, 1)}
 
 ANIM_TIME_INTERVAL = 150 #millisecond
