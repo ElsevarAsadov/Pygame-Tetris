@@ -1,6 +1,21 @@
 import os
+import pygame.freetype as ft
 from settings import *
 from objects import Tetromino
+
+
+class Text:
+    def __init__(self, tetris):
+        self.tetris = tetris
+        self.font = ft.Font(os.path.join("Font", "telelower.ttf"))
+
+    def draw(self, score):
+        screen = self.tetris.app.screen
+        self.font.render_to(surf=screen,
+                            dest=FONT_LOCATION,
+                            text=str(score),
+                            size=FONT_SIZE,
+                            fgcolor=FONT_COLOR)
 
 
 class Tetris:
@@ -17,6 +32,12 @@ class Tetris:
         # game map grid:
         self.field_array = self.get_field()
 
+        self.score = 0
+        self.text = Text(self)
+        
+        #play main theme
+        self.app.sounds["main-theme"].play(loops=-1)
+
     def update(self):
         if self.app.anim_trigger:
             self.tetromino.update()
@@ -30,26 +51,28 @@ class Tetris:
         self.show_game_area()
         self.draw_grid()
         self.sprite_g.draw(self.app.game_srf)
+        self.text.draw(self.score)
 
     def draw_next(self):
         blocks = self.next_tetromino.blocks
-        
-        surf = pg.Surface((100, 100))
-        surf_rect = surf.get_rect(center=NEXT_TETROMINO_LOCATION)
-        
-        surf.set_colorkey("black")
-        
+
+        self.next_surf = pg.Surface((100, 100))
+        self.next_surf_rect = self.next_surf.get_rect(
+            center=NEXT_TETROMINO_LOCATION)
+
+        self.next_surf.set_colorkey("black")
+
         for i in blocks:
             image = pg.transform.scale(i.image, MINIMIZED_BLOCK_SIZE)
-            
+
             rect = image.get_rect()
             margin = MINIMIZED_BLOCK_SIZE[0]
-            
-            rect.topleft = i.next_pos * margin + vec(50, 50)
 
-            surf.blit(image, rect)
-        
-        self.app.screen.blit(surf, surf_rect)
+            rect.topleft = i.next_pos * margin + vec(50, 50) + (35, 10)
+
+            self.next_surf.blit(image, rect)
+
+        self.app.screen.blit(self.next_surf, self.next_surf_rect)
 
     def show_background(self):
         bg_path = os.path.join("Assets", "background.jpg")
@@ -92,6 +115,7 @@ class Tetris:
         if self.tetromino.landing:
             if self.is_game_over():
                 pg.time.wait(300)
+                self.app.sounds["main-theme"].stop()
                 self.__init__(self.app)
             else:
                 self.put_tetromino_blocks_in_array()
@@ -100,6 +124,7 @@ class Tetris:
                 self.next_tetromino = Tetromino(self, current=False)
 
     def check_full_lines(self):
+        line = 0
         fx = GAME_AREA_TILE_X
         fy = GAME_AREA_TILE_Y
         row = fy - 1
@@ -113,11 +138,15 @@ class Tetris:
             if sum(map(bool, self.field_array[y])) < fx:
                 row -= 1
             else:
+                self.app.sounds["explosion"].play()
                 for x in range(fx):
                     self.field_array[row][x].alive = False
                     self.field_array[row][x] = 0
 
+                line += 1
                 # self.full_lines += 1
+        if line:
+            self.score += SCORE[line]
 
     def is_game_over(self):
         for block in self.tetromino.blocks:

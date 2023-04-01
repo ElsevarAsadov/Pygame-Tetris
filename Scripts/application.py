@@ -1,6 +1,6 @@
 from settings import *
 from tetris import Tetris
-from objects import Tetromino
+from sys import exit
 import os
 import pathlib
 
@@ -14,8 +14,10 @@ class Game:
     self.clock = pg.time.Clock()
     
     self.images = self.load_images()
+    self.sounds = self.load_sounds()
     self.set_timer()
     
+    pg.display.set_icon(pg.transform.scale(self.images[0], (25,25)))
     #game objects
     self.tetris = Tetris(self)
     
@@ -37,7 +39,7 @@ class Game:
       
       if e.type == pg.QUIT:
         pg.quit()
-        exit(0)
+        exit()
         
       self.tetris.controls(e)
         
@@ -62,4 +64,15 @@ class Game:
     images = [pg.transform.scale(image, (TILE_SIZE, TILE_SIZE)) for image in images]
     
     return images
+  
+
+  def load_sounds(self):
+    sounds = {}
+    for root, dirnames, file in os.walk("Music"):
+      for filename in file:
+        path = os.path.join(root, filename)
+        name = filename.split(".")[0]
+        sounds[name] = pg.mixer.Sound(path)
+    
+    return sounds
   

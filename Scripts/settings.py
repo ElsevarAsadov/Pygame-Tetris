@@ -32,7 +32,7 @@ GRID_COLOR = "#000000"
 
 TETROMINO_SHAPES = {
     'T': [(0, 0), (-1, 0), (1, 0), (0, -1)],
-    'O': [(0, 0), (0, -1), (1, 0), (1, -1)],
+    'O': [(0, 0), (0, 1), (1, 0), (1, 1)],
     'J': [(0, 0), (-1, 0), (0, -1), (0, -2)],
     'L': [(0, 0), (1, 0), (0, -1), (0, -2)],
     'I': [(0, 0), (0, 1), (0, -1), (0, -2)],
@@ -42,9 +42,16 @@ TETROMINO_SHAPES = {
 
 MINIMIZED_BLOCK_SIZE = (23, 23)
 
-NEXT_TETROMINO_LOCATION = (485, 235)
+NEXT_TETROMINO_LOCATION = (500, 235)
 
 MOVEMENT = {"left" : vec(-1, 0), "right" : vec(1, 0), "down" : (0, 1)}
 
-ANIM_TIME_INTERVAL = 150 #millisecond
+SCORE = {1: 10, 2: 20, 3: 50, 4: 70}
+ANIM_TIME_INTERVAL = 130 #millisecond
 FAST_ANIM_INTERVAL = 20 #millisecond
+
+FONT_SIZE = 14
+
+FONT_LOCATION = (535, 108)
+
+FONT_COLOR = "#fcebb5"
